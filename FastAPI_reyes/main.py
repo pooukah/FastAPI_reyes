@@ -3,9 +3,9 @@ from sqlmodel import SQLModel, create_engine, Session
 from dotenv import load_dotenv
 from fastapi import FastAPI, Depends
 from sqlalchemy import create_engine, update
-
-#from product import *
 from pydantic import BaseModel
+
+
 app = FastAPI()
 #app.add_middleware(
  #   CORSMiddleware,
