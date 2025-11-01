@@ -1,19 +1,20 @@
 import os
-from sqlmodel import SQLModel, create_engine, Session
+from sqlmodel import SQLModel, create_engine, Session, Field, select, update
 from dotenv import load_dotenv
 from fastapi import FastAPI, Depends
 from sqlalchemy import create_engine, update
 from pydantic import BaseModel
+from product import *
 
-
+# CORS
 app = FastAPI()
-#app.add_middleware(
- #   CORSMiddleware,
-  #  allow_origins=["*"],
-   # allow_credentials=True,
-    #allow_methods=["*"],
-    #allow_headers=["*"],
-#)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 load_dotenv()
 
 
@@ -22,15 +23,45 @@ engine = create_engine(DATABASE_URL)
 
 SQLModel.metadata.create_all(engine)
 
+# Iniciar/Apagar la sessió de la BDD
 def get_db():
     db = Session(engine)
     try:
         yield db
     finally:
         db.close()
+################################### 1 ####################################
+@app.post("/api/user", response_model=dict, tags=["AFEGIR"])
+async def newProd(user: createProduct, db: Session = Depends(get_db)):
+    afegir = product.model_validate(user)
+    # validar l'informació amb el nostre model
 
-#@app.post("/api/users", response_model=dict)
-#async def newUser(User: user, db: Session = Depends(get_db)):
+    db.add(afegir)
+    db.commit()
+    return {"msg":"Producte afegit correctament"}
+
+################################### 2 ####################################
+@app.get("/api/user/{id}", responde_model=product, tags=["CONSULTA"])
+async def getProd(id: int, db: Session = Depends(get_db)):
+    trobar = SELECT(product).WHERE(product.id==id)
+    # consulta sql
+    mostrar = db.exec(trobar).first()
+    # el first() es per a que només retorni el primer que trobi
+    return mostrar
+
+################################### 3 ####################################
+@app.get("/api/product", response_model=list, tags=["CONSULTA"])
+async def registres(db: Session = Depends(get_db)):
+    trobar = select(product)
+    mostrar = db.exec(trobar).all()
+    llista = []
+    for i in mostrar:
+        llista.append(productPublic.model_validate(i))
+    return llista
+
+
+
+
 
 
 
