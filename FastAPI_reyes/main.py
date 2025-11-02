@@ -31,17 +31,17 @@ def get_db():
     finally:
         db.close()
 ################################### 1 ####################################
-@app.post("/api/user", response_model=dict, tags=["AFEGIR"])
-async def newProd(user: createProduct, db: Session = Depends(get_db)):
-    afegir = product.model_validate(user)
+@app.post("/api/prod", response_model=dict, tags=["AFEGIR"])
+async def newProd(prod: createProduct, db: Session = Depends(get_db)):
+    afegir = product.model_validate(prod)
     # validar l'informació amb el nostre model
 
     db.add(afegir)
     db.commit()
-    return {"msg":"Producte afegit correctament"}
+    return {"msg":"Inserció exitosa"}
 
 ################################### 2 ####################################
-@app.get("/api/user/{id}", responde_model=product, tags=["CONSULTA"])
+@app.get("/api/prod/{id}", responde_model=product, tags=["CONSULTA"])
 async def getProd(id: int, db: Session = Depends(get_db)):
     trobar = SELECT(product).WHERE(product.id==id)
     # consulta sql
@@ -56,13 +56,46 @@ async def registres(db: Session = Depends(get_db)):
     mostrar = db.exec(trobar).all()
     llista = []
     for i in mostrar:
-        llista.append(productPublic.model_validate(i))
+        llista.append(createProduct.model_validate(i))
     return llista
 
+################################### 4 ####################################
+@app.get("/api/product/{nom_camp}", response_model=list[product], tags=["CONSULTA"])
+async def buscaCamp(nom_camp: str, db: Session = Depends(get_db)):
+    trobar = select(product).where(nom_camp==product.name)
+    mostrar = db.exec(trobar).all()
+    return mostrar
 
+################################### 5 ####################################
+@app.delete("/api/product/delete/{id}", response_model=dict, tags=["REMOVE"])
+async def borrarRegistre(id: int, db: Session = Depends(get_db)):
+    trobar = select(product).where(product.id==id)
+    mostrar = db.exec(trobar).first()
+    db.delete(mostrar) # LO BORRAMOS
+    db.commit()
+    return{"msg":"Eliminat exitosament"}
 
+################################### 6 ####################################
+@app.get("/api/prodAux", response_model=list, tags=["CONSULTA"])
+async def dadesProd(db: Session = Depends(get_db)):
+    trobar = select(product)
+    mostrar = db.exec(trobar).all()
+    lista=[]
+    for i in mostrar:
+        lista.append(productPublic.model_validate(i))
+    return lista
 
+################################### 7 ####################################
+@app.put("/api/actualizar/{id}", response_model=dict, tags=["UPDATE"])
+async def actualitzarProd(id: int, prod: productPublic, db: Session = Depends(get_db)):
+    act = prod.model_dump()
+    # PASA ELS PARAMETRES COM AL MODEL DEMANAT
+    up=update(product).where(roduct.id==id).values(act)
+    db.exec(up)
+    db.commit()
+    return {"msg":"Actualització exitosa"}
 
+################################### 8 ####################################
 
 
 

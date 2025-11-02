@@ -13,19 +13,17 @@ class product(SQLModel, table=True):
     # distribuidor seria el contacte d'on ho comprem
     # gastos seria els gastos total per a tindre el producte com a empresa
 
-# Model per a crear productes (POST)
+# Model amb tot pero no sensibles
 class createProduct(SQLModel):
-    # no mostrem l'id ja que s'autoincrementa sol
-    name: str
-    stock: int
-    precio: float
-    distribuidor: str
-    gastos: float
-
-# Model per al públic (GET)
-class productPublic(SQLModel):
-    # Excluim els camps sensibles --> distribuidor i gastos
+    # Treiem distribuidor y gastos
     id: int
     name: str
     stock: int
     precio: float
+
+# Model per al públic (GET) (nomes 3 camps)
+class productPublic(SQLModel):
+    # Excluim els camps sensibles --> distribuidor i gastos
+    name: str
+    precio: float
+    stock: int
