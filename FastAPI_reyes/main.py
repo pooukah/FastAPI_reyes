@@ -5,6 +5,8 @@ from fastapi import FastAPI, Depends
 from sqlalchemy import create_engine, update
 from pydantic import BaseModel
 from product import *
+#IMPORTS
+
 
 # CORS
 app = FastAPI()
@@ -17,7 +19,7 @@ app.add_middleware(
 )
 load_dotenv()
 
-
+# connexió amb la bd
 DATABASE_URL = os.getenv("DATABASE_URL")
 engine = create_engine(DATABASE_URL)
 
@@ -30,14 +32,15 @@ def get_db():
         yield db
     finally:
         db.close()
+
 ################################### 1 ####################################
 @app.post("/api/prod", response_model=dict, tags=["AFEGIR"])
 async def newProd(prod: createProduct, db: Session = Depends(get_db)):
     afegir = product.model_validate(prod)
     # validar l'informació amb el nostre model
 
-    db.add(afegir)
-    db.commit()
+    db.add(afegir)  # afegir
+    db.commit()     # comentari
     return {"msg":"Inserció exitosa"}
 
 ################################### 2 ####################################
@@ -53,8 +56,10 @@ async def getProd(id: int, db: Session = Depends(get_db)):
 @app.get("/api/product", response_model=list, tags=["CONSULTA"])
 async def registres(db: Session = Depends(get_db)):
     trobar = select(product)
-    mostrar = db.exec(trobar).all()
-    llista = []
+    mostrar = db.exec(trobar).all() # all per a trobar tots
+    llista = [] # llista
+
+    #bucle
     for i in mostrar:
         llista.append(createProduct.model_validate(i))
     return llista
@@ -63,6 +68,7 @@ async def registres(db: Session = Depends(get_db)):
 @app.get("/api/product/{nom_camp}", response_model=list[product], tags=["CONSULTA"])
 async def buscaCamp(nom_camp: str, db: Session = Depends(get_db)):
     trobar = select(product).where(nom_camp==product.name)
+    #consulta de sql
     mostrar = db.exec(trobar).all()
     return mostrar
 
@@ -96,7 +102,24 @@ async def actualitzarProd(id: int, prod: productPublic, db: Session = Depends(ge
     return {"msg":"Actualització exitosa"}
 
 ################################### 8 ####################################
+@app.patch("/api/actualizarNombre/{id}", response_model=dict, tags=["UPDATE"])
+async def actualizarNom(id:int, nouNom: str, db: Session = Depends(get_db)):
+    act = update(product).where(product.id==id).values(name=nouNom)
+    db.exec(act)
+    db.commit()
+    return {"msg":"Modificació exitosa"}
 
+################################### 9 ####################################
+@app.patch("/api/upTwo/{id}", response_model=dict, tags=["UPDATE"])
+async def updateTwo(id:int, nouNom:str, nouStock: int, db: Session = Depends(get_db)):
+    act = (
+        update(product)
+        .where(product.id==id)
+        .values(name=nouNom, stock=nowStock)
+    )
+    db.exec(act)
+    db.commit()
+    return {"msg":"Nom i Stock actualitzats exitosament"}
 
 
 
