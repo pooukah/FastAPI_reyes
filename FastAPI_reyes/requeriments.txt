@@ -1,4 +1,4 @@
-fastapi[standard]
+fastapi.ven
 sqlmodel
 psycopg2-binary
 python-dotenv

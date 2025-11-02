@@ -5,6 +5,7 @@ from fastapi import FastAPI, Depends
 from sqlalchemy import create_engine, update
 from pydantic import BaseModel
 from product import *
+from fastapi.middleware.cors import CORSMiddleware
 #IMPORTS
 
 
