@@ -45,9 +45,9 @@ async def newProd(prod: createProduct, db: Session = Depends(get_db)):
     return {"msg":"Inserció exitosa"}
 
 ################################### 2 ####################################
-@app.get("/api/prod/{id}", responde_model=product, tags=["CONSULTA"])
+@app.get("/api/prod/{id}", response_model=product, tags=["CONSULTA"])
 async def getProd(id: int, db: Session = Depends(get_db)):
-    trobar = SELECT(product).WHERE(product.id==id)
+    trobar = select(product).where(product.id==id)
     # consulta sql
     mostrar = db.exec(trobar).first()
     # el first() es per a que només retorni el primer que trobi
@@ -66,9 +66,9 @@ async def registres(db: Session = Depends(get_db)):
     return llista
 
 ################################### 4 ####################################
-@app.get("/api/product/{nom_camp}", response_model=list[product], tags=["CONSULTA"])
-async def buscaCamp(nom_camp: str, db: Session = Depends(get_db)):
-    trobar = select(product).where(nom_camp==product.name)
+@app.get("/api/product/{nom}", response_model=list[product], tags=["CONSULTA"])
+async def buscaCamp(nom: str, db: Session = Depends(get_db)):
+    trobar = select(product).where(product.name == nom)
     #consulta de sql
     mostrar = db.exec(trobar).all()
     return mostrar
@@ -97,7 +97,7 @@ async def dadesProd(db: Session = Depends(get_db)):
 async def actualitzarProd(id: int, prod: productPublic, db: Session = Depends(get_db)):
     act = prod.model_dump()
     # PASA ELS PARAMETRES COM AL MODEL DEMANAT
-    up=update(product).where(roduct.id==id).values(act)
+    up=update(product).where(product.id==id).values(**act)
     db.exec(up)
     db.commit()
     return {"msg":"Actualització exitosa"}
@@ -116,7 +116,7 @@ async def updateTwo(id:int, nouNom:str, nouStock: int, db: Session = Depends(get
     act = (
         update(product)
         .where(product.id==id)
-        .values(name=nouNom, stock=nowStock)
+        .values(name=nouNom, stock=nouStock)
     )
     db.exec(act)
     db.commit()

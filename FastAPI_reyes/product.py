@@ -6,8 +6,11 @@ class product(SQLModel, table=True):
     name: str
     stock: int
     precio: float
-    distribuidor: str       # informació sensible
-    gastos: float           # informació sensible
+    distribuidor: str = "desconegut"      # informació sensible
+    gastos: float = 0.0          # informació sensible
+
+    # afegeixo valors per defecte per a quan la consulta per a publicar
+    # no permeti dades sensibles
 
     # precio seria el preu al que venem el producte
     # distribuidor seria el contacte d'on ho comprem
